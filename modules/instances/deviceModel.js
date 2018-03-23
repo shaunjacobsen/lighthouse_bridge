@@ -6,6 +6,7 @@ let deviceModel = new mongoose.Schema({
   productIdentifier: String,
   productSerial: String,
   capabilities: [String],
+  parameters: {},
   friendlyName: { type: String, trim: true },
   friendlyLocation: { type: String, trim: true },
   isActive: Boolean,
