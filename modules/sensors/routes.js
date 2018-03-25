@@ -27,7 +27,7 @@ module.exports = (app) => {
 
   app.get('/sensor/aggregate', async (req, res) => {
     try {
-      let data = await aggregateData('5ab3cb5e6f99f84d26e4150a', 'SI2017', 300000, 1521833391000, 1521919792000);
+      let data = await aggregateData('5ab3cb5e6f99f84d26e4150a', 'SI2017', 300000, 1521833391000, new Date().getTime());
       res.json(data);
     } catch (error) {
       
