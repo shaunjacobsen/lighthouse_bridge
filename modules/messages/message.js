@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
+const { ObjectID } = require('mongodb');
 const { Message, MessageRecipient } = require('./model.js');
 const { Device } = require('./../instances/deviceModel');
 let { db } = require('./../../db/db');
 const { Distribution } = require('./queue');
 
 function determineRecipients(recipients) {
-  return Device.find({ _id: recipients }).then(doc => {
+  return Device.find({ _id: { '$in': recipients } }).then(doc => {
     return doc.map(device => {
       return new MessageRecipient({
         device: device,
@@ -57,6 +58,66 @@ let message = {
     }
   },
 
+  checkValidityOfBody: function(data) {
+    let errors = [];
+    return new Promise((resolve, reject) => {
+      if (!data.recipients || data.recipients.length === 0) {
+        errors.push('recipients not specified');
+      }
+      if (!data.title || data.title.length === 0) {
+        errors.push('title not specified');
+      }
+      if (!data.body || data.body.length === 0) {
+        errors.push('body not specified');
+      }
+      if (errors.length > 0) {
+        reject({ errors });
+      }
+      resolve();
+    });
+  },
+
+  checkValidityOfRecipients: async function(recipients) {
+    let validObjectIds = recipients.filter(recipient => {
+      return ObjectID.isValid(recipient);
+    });
+
+    return new Promise(async (resolve, reject) => {
+      if (validObjectIds.length === 0) {
+        reject({ errors: 'invalid recipients' });
+      }
+  
+      if (validObjectIds.length < recipients.length) {
+        reject({ errors: 'invalid recipients' });
+      }
+
+      try {
+        let recipientsInInstance = await checkDeviceIds(validObjectIds);
+        if (recipientsInInstance.length < recipients.length) {
+          reject({ errors: 'invalid recipients' });
+        }
+      } catch (error) {
+        reject({ errors: 'invalid recipients' });
+      }
+      
+      resolve();
+    });
+
+  }
+
+}
+
+const checkDeviceIds = async (recipients) => {
+  let validObjectIds = recipients.filter(recipient => {
+    return ObjectID.isValid(recipient);
+  });
+
+  try {
+    let validDevices = await Device.find({ '_id': { '$in': validObjectIds } });
+    return validDevices;
+  } catch (error) {
+    return [];
+  }
 }
 
 module.exports = { message };
