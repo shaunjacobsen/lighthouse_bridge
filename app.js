@@ -18,11 +18,11 @@ require('./modules/admin/routes.js')(app);
 require('./modules/messages/routes.js')(app);
 require('./modules/sensors/routes.js')(app);
 
-// redis
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(process.env.PORT, () => {
+    console.log(`Server up on ${process.env.PORT}`);
+  });
+}
 
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server up on ${process.env.PORT}`);
-});
 
 module.exports = { app };

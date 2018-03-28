@@ -29,18 +29,18 @@ io.on('connection', (socket) => {
   console.log('new connection from device');
 });
 
-http.listen(3003, () => {
-  console.log('Socket on 3003');
-});
+if (process.env.NODE_ENV !== 'test') {
+  http.listen(3003, () => {
+    console.log('Socket on 3003');
+  });
+}
 
 function push(destination, payload) {
   return new Promise((resolve, reject) => {
     console.log(destination, payload);
-    // distribute payload via socket
     console.log('Emitting ' + payload + ' to ' + destination);
     io.emit(destination, payload);
     resolve(true);
-    // if successful, return true
   });
 }
 
