@@ -25,7 +25,7 @@ let message = new mongoose.Schema({
   body: String,
   behavior: String,
   attributes: {},
-  expires: { type: Number, default: new Date().getTime() + 86400000 },
+  expires: { type: Number, default: new Date().getTime() + 3600000 },
 });
 
 let Message = mongoose.model('Message', message);
