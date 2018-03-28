@@ -7,6 +7,8 @@ const { Meta } = require('./../instances/metaModel.js');
 module.exports = (app) => {
   app.post('/message', async (req, res) => {
     try {
+      await message.checkValidityOfBody(req.body);
+      await message.checkValidityOfRecipients(req.body.recipients);
       let data = {
         originator: req.body.originator,
         type: req.body.type,
@@ -22,18 +24,17 @@ module.exports = (app) => {
       await message.distribute(resp);
       res.send(resp);
     } catch (error) {
-      console.log(error);
+      res.status(400).json(error);
     }
     
   });
 
-  app.get('/messages', async (req, res) => {
+  app.get('/messages/:deviceId', async (req, res) => {
     try {
-      let deviceId = '5aa9a08c93828e00144dc470';
-      let activeMessages = await Message.find({ 'recipients.device._id': deviceId }).where('expires').gt(new Date().getTime()).select('originator type expires shortTitle title body behavior attributes').exec();
+      let activeMessages = await Message.find({ 'recipients.device._id': req.params.deviceId }).where('expires').gt(new Date().getTime()).select('originator type expires shortTitle title body behavior attributes').exec();
       res.json(activeMessages);
     } catch (error) {
-      
+      console.log(error);
     }
   });
 }
