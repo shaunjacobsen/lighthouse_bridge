@@ -55,7 +55,7 @@ const invokeAction = async (recipient, action) => {
       title: action.title,
       shortTitle: action.shortTitle,
       body: action.body,
-      expiry: new Date().getTime() + action.expiry,
+      expires: new Date().getTime() + action.expiry,
       recipients: [recipient],
     };
     await message.send(messagePayload);
