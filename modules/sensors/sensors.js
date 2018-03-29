@@ -35,7 +35,7 @@ const sensor = {
 
   getCurrentReading: async function(deviceId, readingType) {
     try {
-      return await SensorData.findOne().where({deviceId: deviceId, reportType: readingType}).sort({ created: -1 });
+      return await SensorData.findOne().where({deviceId: deviceId, reportType: readingType}).sort({ _id: -1 });
     } catch (error) {
       console.log(error);
     }
