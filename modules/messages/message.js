@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
+
 const { Message, MessageRecipient } = require('./model.js');
 const { Device } = require('./../instances/deviceModel');
 let { db } = require('./../../db/db');
@@ -16,6 +17,30 @@ function determineRecipients(recipients) {
 }
 
 let message = {
+  send: async function(data) {
+    try {
+      await this.checkValidityOfBody(data);
+      await this.checkValidityOfRecipients(data.recipients);
+      let payload = {
+        originator: data.originator,
+        type: data.type,
+        shortTitle: data.shortTitle,
+        title: data.title,
+        body: data.body,
+        behavior: data.behavior,
+        attributes: data.attributes,
+        expires: data.expires,
+        recipients: data.recipients,
+      }
+      let resp = await this.new(payload);
+      await this.distribute(resp);
+      return resp;
+    } catch (error) {
+      throw new Error(error.errors);
+    }
+    
+  },
+
   new: async function(data) {
     try {
       let newMessage = new Message({
@@ -88,12 +113,18 @@ let message = {
       }
   
       if (validObjectIds.length < recipients.length) {
+        let invalidObjectIds = recipients.filter(recipient => {
+          return !ObjectID.isValid(recipient);
+        });
         reject({ errors: 'invalid recipients' });
       }
 
       try {
-        let recipientsInInstance = await checkDeviceIds(validObjectIds);
+        let recipientsInInstance = await checkDeviceIds(recipients);
         if (recipientsInInstance.length < recipients.length) {
+          let recipientsNotInInstance = recipients.filter(recipient => {
+            return !recipients.includes(recipientsInInstance);
+          });
           reject({ errors: 'invalid recipients' });
         }
       } catch (error) {
