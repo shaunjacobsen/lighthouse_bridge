@@ -18,7 +18,45 @@ const eventService = {
       let triggerInvocationData = [];
       subscribedDevices.forEach(device => {
         relevantTriggers = device.eventListeners.filter(listener => {
-          return doesObjectContainKeyForPath(payload, listener.eventTrigger.dataIdentifier.split('.'));
+          let dataPath = listener.eventTrigger.dataIdentifier.split('.');
+          if (doesObjectContainKeyForPath(payload, dataPath)) {
+            let dataValue = keyPath.get(dataPath).getValueFrom(payload);
+            if (dataValue >= listener.eventTrigger.threshold) {
+              return true;
+            }
+            switch (listener.eventTrigger.condition) {
+              case '>':
+              if (dataValue > listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+              case '>=':
+              if (dataValue >= listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+              case '<':
+              if (dataValue < listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+              case '<=':
+              if (dataValue <= listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+              case '=':
+              if (dataValue === listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+              default:
+              if (dataValue === listener.eventTrigger.threshold) {
+                return true;
+              }
+              break;
+            }
+          }
         });
         triggerInvocationData.push({
           device,
@@ -64,7 +102,11 @@ const invokeAction = async (recipient, action, payload) => {
       expires: new Date().getTime() + action.expiry,
       recipients: [recipient._id],
     };
-    await message.send(messagePayload);
+    try {
+      await message.send(messagePayload);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
@@ -91,7 +133,8 @@ const getDeviceInformation = async (id) => {
 }
 
 const doesObjectContainKeyForPath = (obj, kP) => {
-  return !!keyPath.get(kP).getValueFrom(obj);
+  let result = keyPath.get(kP).getValueFrom(obj);
+  return ((typeof result === 'number') || (typeof result === 'string'));
 }
 
 module.exports = { eventService };
