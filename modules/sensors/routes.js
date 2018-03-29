@@ -11,7 +11,7 @@ module.exports = (app) => {
   app.post('/sensor', async (req, res) => {
     try {
       await sensor.validateBody(req.body);
-      //let lastReading = await getCurrentReading(req.body.originatingDeviceId, req.body.reportType);
+      let lastReading = await sensor.getCurrentReading(req.body.originatingDeviceId, req.body.reportType);
       let data = {
         deviceId: req.body.originatingDeviceId,
         created: req.body.reportTime,
@@ -28,8 +28,7 @@ module.exports = (app) => {
       }, {
         data: {
           current: data.data,
-          delta: data.data,
-          //delta: await sensor.compareReadings(lastReading, data),
+          delta: await sensor.compareReadings(lastReading, data),
         },
       });
       res.json(resp);
