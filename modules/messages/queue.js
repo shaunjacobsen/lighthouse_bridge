@@ -14,9 +14,7 @@ rsmq.createQueue({ qname: 'outbound' }, (err, resp) => {
 const Distribution = {
   out: function(message) {
     rsmq.sendMessage({ qname: 'outbound', message: message }, function(err, resp) {
-      if (resp) {
-        console.log('Message queued: ', resp);
-      } else {
+      if (!resp) {
         console.log('Message could not be sent');
       }
     });
@@ -37,8 +35,6 @@ if (process.env.NODE_ENV !== 'test') {
 
 function push(destination, payload) {
   return new Promise((resolve, reject) => {
-    console.log(destination, payload);
-    console.log('Emitting ' + payload + ' to ' + destination);
     io.emit(destination, payload);
     resolve(true);
   });
