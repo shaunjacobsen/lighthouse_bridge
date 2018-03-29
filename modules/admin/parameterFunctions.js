@@ -1,12 +1,5 @@
 const { Device } = require('./../instances/deviceModel');
-
-let lookupDive = (doc, p) => {
-  let newDocument = Object.assign({}, doc._doc);
-  for (var i = 0; i < p.length; i++) {
-    newDocument = newDocument[p[i]];
-  }
-  return newDocument;
-};
+const { lookupDive } = require('./../../helpers/lookupDive');
 
 module.exports = {
   getDeviceConfigurationParameter: async function(deviceId, lookup) {
