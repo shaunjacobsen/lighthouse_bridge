@@ -89,7 +89,7 @@ const sampleMessageWithValidAndInvalidRecipients = {
   shortTitle: "Alert",
   title: "Weather Alert",
   body: "In Chicago, Spring never arrives early.",
-  recipients: [devices[1]._id, devices[2]._id, "invalidId", "5aa9a08c93828e00144dc470"],
+  recipients: [devices[1]._id, devices[2]._id, "invalidId", "5abc0d6c8b7d106d1b9e58e4"],
 }
 
 const emptyMessage = {};
@@ -102,7 +102,7 @@ describe('Messaging', function() {
 
   afterEach(() => {
     return removeMessages;
-  })
+  });
 
   it('Should add a message', async () => {
     const res = await request(app).post('/message').send(sampleMessage);
@@ -161,7 +161,7 @@ describe('Messaging', function() {
     expect(res.body.errors).toContain("title not specified");
   });
 
-  it('Should return multiple errors for an empty request body', async () => {
+  it.skip('Should return multiple errors for an empty request body', async () => {
     const res = await request(app).post('/message').send(emptyMessage);
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('errors');
