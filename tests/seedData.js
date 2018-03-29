@@ -76,6 +76,36 @@ const instanceMeta = new Meta({
   instance: instance,
 });
 
+const sensorData = {
+  firstReading: {
+    deviceId: devices[0]._id,
+    created: new Date().getTime() - 5000,
+    reportType: 'SI2017',
+    data: {
+      temperature: 20,
+      humidity: 10,
+    },
+    granularity: 5000,
+  },
+  secondReading: {
+    deviceId: devices[0]._id,
+    created: new Date().getTime(),
+    reportType: 'SI2017',
+    data: {
+      temperature: 21,
+      humidity: 15,
+    },
+    granularity: 5000,
+  },
+  readingWithNoData: {
+    deviceId: devices[0]._id,
+    created: new Date().getTime(),
+    reportType: 'SI2017',
+    data: {},
+    granularity: 5000,
+  }
+}
+
 const removeAndAddDevices = () => {
   return new Promise((resolve, reject) => {
     Device.remove({}).then(() => {
@@ -104,9 +134,17 @@ const removeMessages = async () => {
   }
 }
 
+const addSensorData = async () => {
+  try {
+    await SensorData.insertMany([sensorData.firstReading, sensorData.secondReading]);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const constructInstance = async () => {
   await removeAndAddDevices();
 }
 
 
-module.exports = { constructInstance, removeMessages, devices };
+module.exports = { constructInstance, removeMessages, devices, sensorData, addSensorData };
