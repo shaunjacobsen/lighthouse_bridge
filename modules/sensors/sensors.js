@@ -21,10 +21,10 @@ const sensor = {
     try {
       let deviceId = newData.deviceId;
       let reportType = newData.reportType;
-      let sensorDeltaThresholds = await getDeviceConfigurationParameter(deviceId, `sensors.${reportType}.deltaThresholds`);
+      //let sensorDeltaThresholds = await getDeviceConfigurationParameter(deviceId, `sensors.${reportType}.deltaThresholds`);
       let differences = {};
-      Object.keys(sensorDeltaThresholds).forEach(threshold => {
-        differences[threshold] = newData.data[threshold] - oldData[threshold];
+      Object.keys(newData.data).forEach(dataPoint => {
+        differences[dataPoint] = newData.data[dataPoint] - oldData.data[dataPoint];
       });
       console.log(differences);
       return differences;
@@ -35,16 +35,7 @@ const sensor = {
 
   getCurrentReading: async function(deviceId, readingType) {
     try {
-      await redisClient.hgetall(deviceId, (err, obj) => {
-        let results = obj;
-        let transformedResults = {};
-        Object.keys(results).forEach(key => {
-          transformedResults[key] = parseFloat(results[key]);
-        });
-        return transformedResults;
-      });
-      // let sensorData = await SensorData.findOne().where({deviceId: deviceId, reportType: readingType}).sort({ _id: -1 });
-      // console.log('newest received:', sensorData.created);
+      return await SensorData.findOne().where({deviceId: deviceId, reportType: readingType}).sort({ created: -1 });
     } catch (error) {
       console.log(error);
     }
