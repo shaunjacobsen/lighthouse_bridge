@@ -3,8 +3,21 @@ const { redisClient } = require('./../../redis/redis');
 const { getDeviceConfigurationParameter } = require('./../admin/parameterFunctions');
 const { SensorData } = require('./model.js');
 
-module.exports = {
-  compareReadingsAndReact: async function(oldData, newData) {
+const sensor = {
+  validateBody: async function(body) {
+    let errors = [];
+    if (!body.data || Object.keys(body.data).length === 0) {
+      errors.push('no reading data sent');
+    }
+    return new Promise((resolve, reject) => {
+      if (errors.length > 0) {
+        reject({ errors });
+      }
+      resolve();
+    });
+  },
+
+  compareReadings: async function(oldData, newData) {
     try {
       let deviceId = newData.deviceId;
       let reportType = newData.reportType;
@@ -114,3 +127,5 @@ module.exports = {
     }
   },
 }
+
+module.exports = { sensor };

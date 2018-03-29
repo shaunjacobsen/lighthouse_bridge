@@ -2,11 +2,15 @@ const express = require('express');
 const mongodb = require('mongodb');
 const { redisClient } = require('./../../redis/redis');
 const { SensorData } = require('./model.js');
-const { getCurrentReading, compareReadingsAndReact, saveSensorDataToRedis, aggregateData } = require('./sensors.js');
+const { sensor } = require('./sensors.js');
+const { eventService } = require('./../eventService/eventService');
+const { getPropByString } = require('./../../helpers/getObjectNestedPaths');
 
 module.exports = (app) => {
+
   app.post('/sensor', async (req, res) => {
     try {
+      await sensor.validateBody(req.body);
       //let lastReading = await getCurrentReading(req.body.originatingDeviceId, req.body.reportType);
       let data = {
         deviceId: req.body.originatingDeviceId,
@@ -17,17 +21,26 @@ module.exports = (app) => {
       }
       let sensorData = new SensorData(data);
       let resp = await sensorData.save();
-      saveSensorDataToRedis(data);
-      //compareReadingsAndReact(lastReading, data);
+      sensor.saveSensorDataToRedis(data);
+      await eventService.emit('newSensorReading', {
+        type: 'lighthouseDevice',
+        id: data.deviceId,
+      }, {
+        data: {
+          current: data.data,
+          delta: data.data,
+          //delta: await sensor.compareReadings(lastReading, data),
+        },
+      });
       res.json(resp);
     } catch (error) {
-      console.log(error);
+      res.status(400).json(error);
     }
   });
 
   app.get('/sensor/aggregate', async (req, res) => {
     try {
-      let data = await aggregateData('5ab3cb5e6f99f84d26e4150a', 'SI2017', 300000, 1521833391000, new Date().getTime());
+      let data = await sensor.aggregateData('5ab3cb5e6f99f84d26e4150a', 'SI2017', 300000, 1521833391000, new Date().getTime());
       res.json(data);
     } catch (error) {
       

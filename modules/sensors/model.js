@@ -4,7 +4,7 @@ let sensorData = new mongoose.Schema({
   created: { type: Number, default: new Date().getTime() },
   deviceId: String,
   reportType: String,
-  data: Object,
+  data: { type: Object, required: true },
   granularity: Number,
 });
 
