@@ -50,9 +50,7 @@ outboundQueueWorker.on('message', async function(message, next, id) {
   let contents = JSON.parse(message);
   let result = await push(contents.destination, contents.payload);
   if (result) {
-    outboundQueueWorker.del(id, (s) => {
-      console.log('deleted? ', s);
-    });
+    outboundQueueWorker.del(id);
     next();
   }
 });
