@@ -24,7 +24,7 @@ const sensor = {
       //let sensorDeltaThresholds = await getDeviceConfigurationParameter(deviceId, `sensors.${reportType}.deltaThresholds`);
       let differences = {};
       Object.keys(newData.data).forEach(dataPoint => {
-        differences[dataPoint] = newData.data[dataPoint] - oldData.data[dataPoint];
+        differences[dataPoint] = Math.round(newData.data[dataPoint] - oldData.data[dataPoint]);
       });
       console.log(differences);
       return differences;
