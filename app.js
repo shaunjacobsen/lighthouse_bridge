@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 require('./config/config');
+require('./db/db');
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require('./modules/admin/routes.js')(app);
 require('./modules/messages/routes.js')(app);
 require('./modules/sensors/routes.js')(app);
+require('./modules/devices/routes.js')(app);
+require('./modules/lighting/routes.js')(app);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(process.env.PORT, () => {

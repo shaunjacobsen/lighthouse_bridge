@@ -6,11 +6,13 @@ let deviceModel = new mongoose.Schema({
   productIdentifier: String,
   productSerial: String,
   capabilities: [String],
+  type: String,
   parameters: {},
+  archetypes: [String],
   eventListeners: {},
   friendlyName: { type: String, trim: true },
   friendlyLocation: { type: String, trim: true },
-  isActive: Boolean,
+  isActive: {type: Boolean, default: true },
   created: { type: Number, default: new Date().getTime() },
 });
 
